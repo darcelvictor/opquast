@@ -1,0 +1,2 @@
+Découvrez les règles de qualité web d'Opquast pour améliorer vos sites ! Ce contenu est proposé par Elie Sloïm, Laurent Denis et la société Opquast, et est partagé sous la licence
+[CC BY-NC-SA 2.0 FR](https://creativecommons.org/licenses/by-nc-sa/2.0/fr/). En savoir plus : [https://checklists.opquast.com/fr/assurance-qualite-web/licence/](https://checklists.opquast.com/fr/assurance-qualite-web/licence/)
