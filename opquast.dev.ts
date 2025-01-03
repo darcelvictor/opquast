@@ -1,5 +1,7 @@
 import { chromium } from "playwright";
 import TurndownService from "turndown";
+import { remark } from "remark";
+import remarkGfm from "remark-gfm";
 import fs from "fs";
 
 const BASE_URL = "https://checklists.opquast.com";
@@ -53,8 +55,8 @@ async function run() {
 
     const cleanTitle = formatNumbers(title);
 
-    const markdownContent = convertHtmlToMarkdown(cleanHtmlContent);
-    const markdownIntro = convertHtmlToMarkdown(intro);
+    const markdownContent = await convertHtmlToMarkdown(cleanHtmlContent);
+    const markdownIntro = await convertHtmlToMarkdown(intro);
     const markdownTags = tags.join(" ");
 
     // template
@@ -85,9 +87,12 @@ ${markdownContent}
 
 run();
 
-function convertHtmlToMarkdown(html: string) {
+async function convertHtmlToMarkdown(html: string) {
   const turndownService = new TurndownService();
-  return turndownService.turndown(html);
+  var md = turndownService.turndown(html);
+  const file = await remark().use(remarkGfm).process(md);
+  console.log(String(file));
+  return String(file);
 }
 
 function formatNumbers(inputString: string): string {
