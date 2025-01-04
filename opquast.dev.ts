@@ -1,7 +1,9 @@
 import { chromium } from "playwright";
-import TurndownService from "turndown";
-import { remark } from "remark";
-import remarkGfm from "remark-gfm";
+import rehypeParse from "rehype-parse";
+import rehypeRemark from "rehype-remark";
+import remarkStringify from "remark-stringify";
+import { unified } from "unified";
+
 import fs from "fs";
 
 const BASE_URL = "https://checklists.opquast.com";
@@ -53,7 +55,7 @@ async function run() {
       `<p><a href="/fr/assurance-qualite-web/licence/">Auteur Opquast - Consulter la licence</a></p>`
     )[0];
 
-    const cleanTitle = formatNumbers(title);
+    const cleanTitle = formatNumbers(title).replace("  - ", " - ");
 
     const markdownContent = await convertHtmlToMarkdown(cleanHtmlContent);
     const markdownIntro = await convertHtmlToMarkdown(intro);
@@ -78,7 +80,7 @@ ${markdownContent}
 
     fs.writeFile(filePath, content, (err) => {
       if (err) throw err;
-      console.log("File has been saved!");
+      console.log(cleanTitle.split(" -")[0] + " has been saved!");
     });
   }
   await browser.close();
@@ -88,15 +90,26 @@ ${markdownContent}
 run();
 
 async function convertHtmlToMarkdown(html: string) {
-  const turndownService = new TurndownService();
-  var md = turndownService.turndown(html);
-  const file = await remark().use(remarkGfm).process(md);
-  console.log(String(file));
+  const file = await unified()
+    .use(rehypeParse)
+    .use(rehypeRemark)
+    .use(remarkStringify)
+    .process(html);
   return String(file);
 }
 
 function formatNumbers(inputString: string): string {
-  return inputString.replace(/\b(\d{1,2})\b/g, (match) => {
+  var result = inputString.replace(/\b(\d{1,2})\b/g, (match) => {
     return match.padStart(3, "0");
   });
+  result = removeTrailingDot(result);
+  return result;
+}
+
+function removeTrailingDot(s: string): string {
+  if (s.endsWith(".")) {
+    return s.slice(0, -1);
+  } else {
+    return s;
+  }
 }
